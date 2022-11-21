@@ -15,6 +15,7 @@ namespace RedisSearchProduct.Routes
             })
             .WithName("SeedProducts")
             .WithDescription("Seeds product data")
+            .WithTags("Data Seeding")
             .WithOpenApi();
 
             return app;

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Text.Json;
+using RediSearchClient;
+using RediSearchClient.Indexes;
 using RedisSearchProduct.Data.Products.Models;
 using RedisSearchProduct.Data.Redis;
 using StackExchange.Redis;
@@ -22,18 +24,37 @@ namespace RedisSearchProduct.Data.Products.Services
 
         public async Task SeedProducts()
         {
-            var server = _redisService.Server;
-            await server.FlushDatabaseAsync();
-
             var db = _redisService.Database;
+
+            await PrepareDatabase(db);
 
             for (int i = 0; i < 10000; i++)
             {
                 var product = ProductGenerator.Create();
 
                 await CreateJson(db, product);
+                await CreateFields(db, product);
+                await CreateSuggestions(db, product);
                 CreateFilters(db, product);
             }
+        }
+
+        private async Task PrepareDatabase(IDatabase database)
+        {
+            var server = _redisService.Server;
+            await server.FlushDatabaseAsync();
+
+            var indexDefinition = RediSearchIndex
+                .OnHash()
+                .ForKeysWithPrefix("fields:")
+                .WithSchema(
+                    x => x.Text("Name", sortable: false, nostem: true),
+                    x => x.Text("Color", sortable: false, nostem: true),
+                    x => x.Text("Size", sortable: false, nostem: true)
+                )
+                .Build();
+
+            await database.CreateIndexAsync("product:search", indexDefinition);
         }
 
         private async Task CreateJson(IDatabase database, Product product)
@@ -52,6 +73,21 @@ namespace RedisSearchProduct.Data.Products.Services
             batch.Execute();
         }
 
+        private async Task CreateFields(IDatabase database, Product product)
+        {
+            await database.HashSetAsync($"fields:{product.Id.ToString()}", new HashEntry[]
+            {
+                new HashEntry("Name", product.Name),
+                new HashEntry("Color", Enum.GetName(typeof(Color), product.Color)),
+                new HashEntry("Size", Enum.GetName(typeof(Size), product.Size))
+            });
+        }
+
+        private async Task CreateSuggestions(IDatabase database, Product product)
+        {
+            await database.AddSuggestionAsync("product:suggestions", product.Name, 1);
+        }
+
         private static class ProductGenerator
         {
             private static readonly int NumOfColors;
@@ -59,12 +95,12 @@ namespace RedisSearchProduct.Data.Products.Services
 
             private static readonly string[] ShirtTypes = new[]
             {
-            "Fuzzy",
-            "Form-fitting",
-            "Weird",
-            "Cotton",
-            "Awesome"
-        };
+                "Fuzzy",
+                "Form-fitting",
+                "Weird",
+                "Cotton",
+                "Awesome"
+            };
 
             private static string RandomShirtName => ShirtTypes[Random.Shared.Next(0, ShirtTypes.Length - 1)];
 

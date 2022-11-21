@@ -14,6 +14,7 @@
     <None Remove="StackExchange.Redis" />
     <None Remove="Microsoft.Extensions.DependencyInjection" />
     <None Remove="Microsoft.Extensions.Options" />
+    <None Remove="RediSearchClient" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Products\" />
@@ -25,8 +26,10 @@
     <PackageReference Include="StackExchange.Redis" Version="2.6.70" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.0" />
+    <PackageReference Include="RediSearchClient" Version="1.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\RedisSearchProduct.Configuration\RedisSearchProduct.Configuration.csproj" />
+    <ProjectReference Include="..\RedisSearchProduct.Contracts\RedisSearchProduct.Contracts.csproj" />
   </ItemGroup>
 </Project>

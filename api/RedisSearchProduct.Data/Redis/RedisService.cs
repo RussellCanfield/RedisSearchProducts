@@ -6,6 +6,12 @@ using StackExchange.Redis;
 
 namespace RedisSearchProduct.Data.Redis
 {
+    public interface IRedisService
+    {
+        IDatabase Database { get; }
+        IServer Server { get; }
+    }
+
     public class RedisService : IRedisService
     {
         private readonly Lazy<ConnectionMultiplexer> _lazyConnection;

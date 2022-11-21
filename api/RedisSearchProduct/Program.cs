@@ -13,13 +13,12 @@ builder.Services.Configure<RedisOptions>(options => builder.Configuration.GetSec
 builder.Services.AddSingleton<IRedisService, RedisService>();
 builder.Services.AddSingleton<IProductService, ProductService>();
 builder.Services.AddSingleton<ISeedService, SeedService>();
+builder.Services.AddSingleton<ISearchService, SearchService>();
 
 var app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI();
-
-//app.UseHttpsRedirection();
 
 app.UseSeedRoutes();
 app.UseProductRoutes();

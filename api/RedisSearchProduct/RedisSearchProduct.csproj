@@ -32,5 +32,8 @@
     <ProjectReference Include="..\RedisSearchProduct.Configuration\RedisSearchProduct.Configuration.csproj">
       <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
     </ProjectReference>
+    <ProjectReference Include="..\RedisSearchProduct.Contracts\RedisSearchProduct.Contracts.csproj">
+      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
+    </ProjectReference>
   </ItemGroup>
 </Project>
