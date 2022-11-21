@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Products\" />
+    <None Remove="Products\Models\" />
+    <None Remove="Products\Services\" />
+    <None Remove="Redis\" />
+    <None Remove="StackExchange.Redis" />
+    <None Remove="Microsoft.Extensions.DependencyInjection" />
+    <None Remove="Microsoft.Extensions.Options" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Products\" />
+    <Folder Include="Products\Models\" />
+    <Folder Include="Products\Services\" />
+    <Folder Include="Redis\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="StackExchange.Redis" Version="2.6.70" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RedisSearchProduct.Configuration\RedisSearchProduct.Configuration.csproj" />
+  </ItemGroup>
+</Project>

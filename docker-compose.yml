@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  redis:
+    image: "redis/redis-stack-server"
+    command: redis-server --requirepass password123
+    ports:
+      - "6379:6379"
+  api:
+    build: .
+    ports:
+      - "80:5000"
+    environment:
+      - ASPNETCORE_URLS=http://+:5000

@@ -11,6 +11,26 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+    <PackageReference Include="StackExchange.Redis" Version="2.6.70" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Watch Include="..\**\*.env" Condition="'$(DOTNET_RUNNING_IN_CONTAINER)' != 'true'" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Routes\" />
+    <None Remove="StackExchange.Redis" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Routes\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RedisSearchProduct.Data\RedisSearchProduct.Data.csproj">
+      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
+    </ProjectReference>
+    <ProjectReference Include="..\RedisSearchProduct.Configuration\RedisSearchProduct.Configuration.csproj">
+      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
+    </ProjectReference>
+  </ItemGroup>
 </Project>
