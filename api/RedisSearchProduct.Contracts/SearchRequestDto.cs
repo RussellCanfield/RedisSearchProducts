@@ -2,9 +2,11 @@
 
 public record SearchRequestDto
 {
-    public SearchRequestFilterDto? Filters { get; set; }
+    public int PageSize { get; set; }
+    public int PageNumber { get; set; }
+    public SearchRequestFilterDto[]? Filters { get; set; }
     public SearchRequestRangeDto? Range { get; set; }
-    public SearchRequestSortDirectionDto Sort { get; set; }
+    public SearchRequestSortDto? Sort { get; set; }
 }
 
 public record SearchRequestFilterDto
@@ -18,6 +20,12 @@ public record SearchRequestRangeDto
     public string? Name { get; set; }
     public int Min { get; set; }
     public int Max { get; set; }
+}
+
+public record SearchRequestSortDto
+{
+    public string? Name { get; set; }
+    public SearchRequestSortDirectionDto Direction { get; set; }
 }
 
 public enum SearchRequestSortDirectionDto
