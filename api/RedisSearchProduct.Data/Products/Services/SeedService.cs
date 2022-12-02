@@ -149,7 +149,7 @@ namespace RedisSearchProduct.Data.Products.Services
                 "Awesome"
             };
 
-            private static string RandomShirtName => ShirtTypes[Random.Shared.Next(0, ShirtTypes.Length - 1)];
+            private static string RandomShirtName => ShirtTypes[Random.Shared.Next(0, ShirtTypes.Length)];
 
             private static Color RandomColor =>
                 (Color)Random.Shared.Next(0, NumOfColors);
@@ -159,15 +159,15 @@ namespace RedisSearchProduct.Data.Products.Services
 
             static ProductGenerator()
             {
-                NumOfColors = Enum.GetValues<Color>().Length - 1;
-                NumOfSizes = Enum.GetValues<Size>().Length - 1;
+                NumOfColors = Enum.GetValues<Color>().Length;
+                NumOfSizes = Enum.GetValues<Size>().Length;
             }
 
             public static Product Create()
             {
                 var color = RandomColor;
                 return new Product($"{RandomShirtName} {color} Shirt",
-                    Random.Shared.NextInt64(5, 150),
+                    Random.Shared.NextInt64(2, 10) * 5,
                     color,
                     RandomSize);
             }

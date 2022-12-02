@@ -1,5 +1,6 @@
 import { useContext } from "react";
-import { ProductContext } from "../context/ProductContext";
+import { ProductContext } from "../../../context/ProductContext";
+import ProductCard from "../Card/ProductCard";
 
 import styles from "./ProductList.module.css";
 
@@ -11,7 +12,12 @@ const ProductList = () => {
 	return (
 		<section className={styles["product-list"]}>
 			{products.map((product) => {
-				return <div>test</div>;
+				return (
+					<ProductCard
+						product={product}
+						key={product.id}
+					></ProductCard>
+				);
 			})}
 		</section>
 	);
