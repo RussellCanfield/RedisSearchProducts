@@ -35,7 +35,12 @@ namespace RedisSearchProduct.Data.Products.Services
 
             var batch = db.CreateBatch();
 
-            if (searchRequest.Filters != null)
+            if (searchRequest.Filters == null || searchRequest.Filters.Length == 0)
+            {
+                cacheKeys.Add("default:products");
+            }
+
+            if (searchRequest.Filters != null && searchRequest.Filters.Length > 0)
             {
                 string filtersKey = $"results:filters:{ObjectHasher.Hash(searchRequest.Filters)}";
 
@@ -54,7 +59,7 @@ namespace RedisSearchProduct.Data.Products.Services
                 cacheKeys.Select(c => (RedisKey)c).ToArray());
 
             var start = (searchRequest.PageNumber - 1) * searchRequest.PageSize;
-            var stop = searchRequest.PageNumber * searchRequest.PageSize;
+            var stop = searchRequest.PageNumber * searchRequest.PageSize - 1;
 
             var results = await db.SortedSetRangeByRankAsync(resultsKey, start, stop);
 

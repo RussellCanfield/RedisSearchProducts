@@ -58,18 +58,21 @@ export const ProductContextProvider = ({ children }: Props) => {
 		});
 	}, []);
 
-	const search = useCallback(async (searchRequest: SearchRequest) => {
-		const response = await fetch(`${baseUrl}/product/search`, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify(searchRequest),
-		});
+	const search = useCallback(
+		async (searchRequest: SearchRequest) => {
+			const response = await fetch(`${baseUrl}/product/search`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(searchRequest),
+			});
 
-		const results = (await response.json()) as SearchResponse;
-		setProducts(results.products);
-	}, []);
+			const results = (await response.json()) as SearchResponse;
+			setProducts(results.products);
+		},
+		[setProducts]
+	);
 
 	useEffect(() => {
 		search({
@@ -77,7 +80,7 @@ export const ProductContextProvider = ({ children }: Props) => {
 			pageNumber,
 			filters: searchFilters,
 		});
-	}, [searchFilters]);
+	}, []);
 
 	return (
 		<ProductContext.Provider

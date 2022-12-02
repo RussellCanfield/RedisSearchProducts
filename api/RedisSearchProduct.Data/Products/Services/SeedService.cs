@@ -27,6 +27,7 @@ namespace RedisSearchProduct.Data.Products.Services
             var db = _redisService.Database;
 
             await PrepareDatabase(db);
+            CreateFilterMetadata(db);
 
             for (int i = 0; i < 10000; i++)
             {
@@ -36,6 +37,11 @@ namespace RedisSearchProduct.Data.Products.Services
                 await CreateFields(db, product);
                 await CreateSuggestions(db, product);
                 CreateFilters(db, product);
+
+                if (Random.Shared.NextDouble() > 0.8)
+                {
+                    await CreateDefaultProductList(db, product);
+                }
             }
         }
 
@@ -57,9 +63,46 @@ namespace RedisSearchProduct.Data.Products.Services
             await database.CreateIndexAsync("product:search", indexDefinition);
         }
 
+        private async Task CreateDefaultProductList(IDatabase database, Product product)
+        {
+            await database.SetAddAsync($"default:products", product.Id.ToString());
+        }
+
         private async Task CreateJson(IDatabase database, Product product)
         {
             await database.StringSetAsync($"json:{product.Id}", JsonSerializer.Serialize(product));
+        }
+
+        private void CreateFilterMetadata(IDatabase database)
+        {
+            var batch = database.CreateBatch();
+
+            var colorEnumValues = Enum.GetNames(typeof(Color));
+
+            HashEntry[] colorValues = new HashEntry[colorEnumValues.Length];
+
+            for (int i = 0; i < colorValues.Length; i++)
+            {
+                colorValues[i] = new HashEntry(colorEnumValues[i], 0);
+            }
+
+            batch.HashSetAsync("filters:meta:Color", colorValues);
+
+            var sizeEnumValues = Enum.GetNames(typeof(Size));
+
+            HashEntry[] sizeValues = new HashEntry[sizeEnumValues.Length];
+
+            for (int i = 0; i < sizeValues.Length; i++)
+            {
+                sizeValues[i] = new HashEntry(sizeEnumValues[i], 0);
+            }
+
+            batch.HashSetAsync("filters:meta:Size", sizeValues);
+
+            batch.SetAddAsync("filters:meta", "Color");
+            batch.SetAddAsync("filters:meta", "Size");
+
+            batch.Execute();
         }
 
         private void CreateFilters(IDatabase database, Product product)
@@ -67,9 +110,13 @@ namespace RedisSearchProduct.Data.Products.Services
             var productId = product.Id.ToString();
 
             var batch = database.CreateBatch();
-            batch.SetAddAsync($"filters:color:{Enum.GetName(product.Color)}", productId);
-            batch.SetAddAsync($"filters:size:{Enum.GetName(product.Size)}", productId);
-            batch.SortedSetAddAsync("ranges:price", productId, (double)product.Price);
+            batch.SetAddAsync($"filters:Color:{Enum.GetName(product.Color)}", productId);
+            batch.SetAddAsync($"filters:Size:{Enum.GetName(product.Size)}", productId);
+            batch.SortedSetAddAsync("ranges:Price", productId, (double)product.Price);
+
+            batch.HashIncrementAsync("filters:meta:Color", Enum.GetName(product.Color), 1);
+            batch.HashIncrementAsync("filters:meta:Size", Enum.GetName(product.Size), 1);
+
             batch.Execute();
         }
 
@@ -118,9 +165,10 @@ namespace RedisSearchProduct.Data.Products.Services
 
             public static Product Create()
             {
-                return new Product(RandomShirtName,
+                var color = RandomColor;
+                return new Product($"{RandomShirtName} {color} Shirt",
                     Random.Shared.NextInt64(5, 150),
-                    RandomColor,
+                    color,
                     RandomSize);
             }
         }

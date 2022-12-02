@@ -1,26 +1,14 @@
 import { useContext, useState } from "react";
-import reactLogo from "./assets/react.svg";
 import "./App.css";
 import { ProductContext } from "./context/ProductContext";
+import ProductList from "./components/ProductList";
 
 function App() {
-	const { products, setFilter } = useContext(ProductContext);
-
-	const addFilter = () => {
-		setFilter("color", "Blue");
-	};
+	const { setFilter } = useContext(ProductContext);
 
 	return (
 		<div>
-			<button type="button" onClick={() => addFilter()}>
-				Test
-			</button>
-			<section>
-				{products &&
-					products.map((product) => {
-						return JSON.stringify(product);
-					})}
-			</section>
+			<ProductList></ProductList>
 		</div>
 	);
 }
