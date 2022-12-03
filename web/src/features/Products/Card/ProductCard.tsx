@@ -41,6 +41,7 @@ const ProductCard = ({ product }: Props) => {
 				<div className={styles["product-card-title"]}>
 					{product.name}
 				</div>
+				<div>{product.size}</div>
 				<div>{formatCurrency(product.price)}</div>
 			</div>
 		</article>

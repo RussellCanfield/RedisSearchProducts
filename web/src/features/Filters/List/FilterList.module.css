@@ -1,3 +1,4 @@
 .filter-list {
-    width: 256px;
+    min-width: 200px;
+    margin-right: 1rem;
 }

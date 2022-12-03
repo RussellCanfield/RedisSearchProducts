@@ -14,14 +14,22 @@ import {
 } from "../types/Search";
 
 interface IProductContext {
-	products: Product[];
+	searchResults: SearchResponse;
 	filters: string[];
+	pageNumber: number;
+	pageSize: number;
 	setFilter: (filterName: string, filterValue: string) => void;
 }
 
 const productAppContext: IProductContext = {
-	products: [],
+	searchResults: {
+		total: 0,
+		count: 0,
+		products: [],
+	},
 	filters: [],
+	pageNumber: 1,
+	pageSize: 25,
 	setFilter: (_filterName, _filterValue) => {},
 };
 
@@ -38,7 +46,11 @@ export const ProductContextProvider = ({ children }: Props) => {
 		[]
 	);
 	const [filters, setFilters] = useState<string[]>([]);
-	const [products, setProducts] = useState<Product[]>([]);
+	const [searchResults, setSearchResults] = useState<SearchResponse>({
+		total: 0,
+		count: 0,
+		products: [],
+	});
 	const [pageSize, setPageSize] = useState<number>(25);
 	const [pageNumber, setPageNumber] = useState<number>(1);
 
@@ -51,14 +63,37 @@ export const ProductContextProvider = ({ children }: Props) => {
 					name: filterName,
 					values: [filterValue],
 				});
-			} else if (!filters[filterIndex].values.includes(filterValue)) {
-				filters[filterIndex] = {
-					name: filterName,
-					values: [...filters[filterIndex].values, filterValue],
-				};
+			} else {
+				if (!filters[filterIndex].values.includes(filterValue)) {
+					filters[filterIndex] = {
+						name: filterName,
+						values: [...filters[filterIndex].values, filterValue],
+					};
+				} else {
+					const remainingFilters = filters[filterIndex].values.filter(
+						(v) => v !== filterValue
+					);
+
+					if (remainingFilters.length === 0) {
+						filters = filters.filter((f) => f.name !== filterName);
+					} else {
+						filters[filterIndex] = {
+							name: filterName,
+							values: [...remainingFilters],
+						};
+					}
+				}
 			}
 
-			return [...filters];
+			const updatedFilters = [...filters];
+
+			search({
+				pageSize,
+				pageNumber,
+				filters: updatedFilters,
+			});
+
+			return updatedFilters;
 		});
 	}, []);
 
@@ -73,9 +108,9 @@ export const ProductContextProvider = ({ children }: Props) => {
 			});
 
 			const results = (await response.json()) as SearchResponse;
-			setProducts(results.products);
+			setSearchResults(results);
 		},
-		[setProducts]
+		[setSearchResults]
 	);
 
 	const getFilters = useCallback(async () => {
@@ -86,6 +121,15 @@ export const ProductContextProvider = ({ children }: Props) => {
 		const results = (await response.json()) as string[];
 		setFilters(results);
 	}, [setFilters]);
+
+	const setPage = useCallback((page: number) => {
+		setPageNumber(page);
+		search({
+			pageSize,
+			pageNumber: page,
+			filters: searchFilters,
+		});
+	}, []);
 
 	useEffect(() => {
 		search({
@@ -100,8 +144,10 @@ export const ProductContextProvider = ({ children }: Props) => {
 	return (
 		<ProductContext.Provider
 			value={{
-				products,
+				searchResults,
 				filters,
+				pageNumber,
+				pageSize,
 				setFilter,
 			}}
 		>
