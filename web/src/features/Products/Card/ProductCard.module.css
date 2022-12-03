@@ -1,4 +1,17 @@
-.product-card
-{
+.product-card {
     border-radius: 4px;
+    border: 1px solid #ddd;
+    padding: 1rem;
+}
+
+.product-card-image {
+    width: 256px;
+    height: 320px;
+}
+
+.product-card-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: rgb(34, 34, 34);
+    margin-bottom: 1rem;
 }

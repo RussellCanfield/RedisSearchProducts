@@ -31,6 +31,26 @@ namespace RedisSearchProduct.Routes
             .WithName("GetProductSuggestion")
             .WithOpenApi();
 
+            app.MapGet("/product/filters", async (IProductService productService) =>
+            {
+                var suggestions = await productService.GetFilters();
+
+                return Results.Ok(suggestions);
+            })
+            .WithTags("Products")
+            .WithName("GetProductFilters")
+            .WithOpenApi();
+
+            app.MapGet("/product/filters/{name}", async (string name, IProductService productService) =>
+            {
+                var suggestions = await productService.GetFilter(name);
+
+                return Results.Ok(suggestions);
+            })
+            .WithTags("Products")
+            .WithName("GetProductFiltersByName")
+            .WithOpenApi();
+
             app.MapPost("/product/search", async ([FromBody] SearchRequestDto searchRequest, ISearchService searchService) =>
             {
                 var products = await searchService.SearchProducts(searchRequest);

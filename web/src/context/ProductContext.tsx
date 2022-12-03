@@ -5,6 +5,7 @@ import {
 	useEffect,
 	useState,
 } from "react";
+import { Filter } from "../types/Filter";
 import { Product } from "../types/Product";
 import {
 	SearchRequest,
@@ -14,11 +15,13 @@ import {
 
 interface IProductContext {
 	products: Product[];
+	filters: string[];
 	setFilter: (filterName: string, filterValue: string) => void;
 }
 
 const productAppContext: IProductContext = {
 	products: [],
+	filters: [],
 	setFilter: (_filterName, _filterValue) => {},
 };
 
@@ -34,6 +37,7 @@ export const ProductContextProvider = ({ children }: Props) => {
 	const [searchFilters, setSearchFilters] = useState<SearchRequestFilter[]>(
 		[]
 	);
+	const [filters, setFilters] = useState<string[]>([]);
 	const [products, setProducts] = useState<Product[]>([]);
 	const [pageSize, setPageSize] = useState<number>(25);
 	const [pageNumber, setPageNumber] = useState<number>(1);
@@ -74,18 +78,30 @@ export const ProductContextProvider = ({ children }: Props) => {
 		[setProducts]
 	);
 
+	const getFilters = useCallback(async () => {
+		const response = await fetch(`${baseUrl}/product/filters`, {
+			method: "GET",
+		});
+
+		const results = (await response.json()) as string[];
+		setFilters(results);
+	}, [setFilters]);
+
 	useEffect(() => {
 		search({
 			pageSize,
 			pageNumber,
 			filters: searchFilters,
 		});
+
+		getFilters();
 	}, []);
 
 	return (
 		<ProductContext.Provider
 			value={{
 				products,
+				filters,
 				setFilter,
 			}}
 		>

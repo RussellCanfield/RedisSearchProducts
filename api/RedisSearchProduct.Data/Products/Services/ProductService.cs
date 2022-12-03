@@ -9,6 +9,8 @@ namespace RedisSearchProduct.Data.Products.Services
     {
         Task<Product?> GetProduct(string Id);
         Task<string[]?> GetProductSuggestions(string searchTerm);
+        Task<string[]> GetFilters();
+        Task<Filter?> GetFilter(string name);
     }
 
     public class ProductService : IProductService
@@ -18,6 +20,34 @@ namespace RedisSearchProduct.Data.Products.Services
         public ProductService(IRedisService redisService)
         {
             _redisService = redisService;
+        }
+
+        public async Task<Filter?> GetFilter(string name)
+        {
+            var db = _redisService.Database;
+
+            var filters = await db.HashGetAllAsync($"filters:meta:{name}");
+
+            if (filters.Length == 0) return null;
+
+            return new Filter
+            {
+                Name = name,
+                Values = filters.Select(f => new FilterValue
+                {
+                    Name = f.Name,
+                    Count = (int)f.Value,
+                }).ToArray()
+            };
+        }
+
+        public async Task<string[]> GetFilters()
+        {
+            var db = _redisService.Database;
+
+            var values = await db.SetMembersAsync("filters:meta");
+
+            return values.Select(v => v.ToString()).ToArray();
         }
 
         public async Task<Product?> GetProduct(string Id)
