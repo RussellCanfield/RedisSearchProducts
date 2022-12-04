@@ -5,6 +5,7 @@ using StackExchange.Redis;
 using System.Text.Json;
 using RediSearchClient.Query;
 using RediSearchClient;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace RedisSearchProduct.Data.Products.Services
 {
@@ -30,32 +31,30 @@ namespace RedisSearchProduct.Data.Products.Services
 
             string resultsKey = $"results:{ObjectHasher.Hash(new
             {
+                searchRequest.Text,
                 searchRequest.Filters
             })}";
 
-            List<string> cacheKeys = new List<string>(5);
+            List<RedisKey> cacheKeys = new List<RedisKey>(5);
 
-            var batch = db.CreateBatch();
+            var batch = db.CreateTransaction();
 
-            if (searchRequest.Filters == null || searchRequest.Filters.Length == 0)
+            if ((searchRequest.Filters == null || searchRequest.Filters.Length == 0) &&
+                string.IsNullOrWhiteSpace(searchRequest.Text))
             {
                 cacheKeys.Add("default:products");
             }
 
             if (!string.IsNullOrWhiteSpace(searchRequest.Text))
             {
-                var queryDefinition = RediSearchQuery
-                    .On("product:search")
-                    .UsingQuery(searchRequest.Text)
-                    .NoContent()
-                    .Build();
+                string textKey = $"results:text:{ObjectHasher.Hash(searchRequest.Text)}";
 
-                var result = await db.SearchAsync(queryDefinition);
+                if (!await db.KeyExistsAsync(textKey))
+                    await HandleTextSearch(db, batch, textKey, searchRequest.Text);
 
-                for (int i = 0; i < result.RecordCount; i++)
-                {
-                    var test = result.RawResult[i];
-                }
+                batch.KeyExpireAsync(textKey, KeyExpiry);
+
+                cacheKeys.Add(textKey);
             }
 
             if (searchRequest.Filters != null && searchRequest.Filters.Length > 0)
@@ -64,17 +63,17 @@ namespace RedisSearchProduct.Data.Products.Services
 
                 if (!await db.KeyExistsAsync(filtersKey))
                     HandleFilters(batch, filtersKey, searchRequest.Filters);
-                else
-                    batch.KeyExpireAsync(filtersKey, KeyExpiry);
+
+                batch.KeyExpireAsync(filtersKey, KeyExpiry);
 
                 cacheKeys.Add(filtersKey);
             }
 
-            batch.Execute();
+            await batch.ExecuteAsync();
 
             var total = await db.SortedSetCombineAndStoreAsync(SetOperation.Intersect,
                 resultsKey,
-                cacheKeys.Select(c => (RedisKey)c).ToArray());
+                cacheKeys.ToArray());
 
             var start = (searchRequest.PageNumber - 1) * searchRequest.PageSize;
             var stop = searchRequest.PageNumber * searchRequest.PageSize - 1;
@@ -95,6 +94,28 @@ namespace RedisSearchProduct.Data.Products.Services
             return new SearchResponseDto(products.Length, total, products);
         }
 
+        private async Task HandleTextSearch(IDatabase db, IBatch batch, string cacheKey, string text)
+        {
+            var queryDefinition = RediSearchQuery
+                    .On("product:search")
+                    .UsingQuery(text)
+                    .NoContent()
+                    .Limit(0, 10000)
+                    .Build();
+
+            var result = await db.SearchAsync(queryDefinition);
+
+            if (result.RecordCount > 0)
+            {
+                List<RedisKey> productIds = new List<RedisKey>(result.RecordCount);
+                for (int i = 1; i <= result.RecordCount; i++)
+                {
+                    productIds.Add($"json:{result.RawResult[i].ToString()!.Split("fields:")[1]}");
+                }
+                batch.SetCombineAndStoreAsync(SetOperation.Union, cacheKey, productIds.ToArray());
+            }
+        }
+
 		private void HandleFilters(IBatch batch, string cacheKey, SearchRequestFilterDto[] filters)
 		{
             for (int i = 0; i < filters.Length; i++)
@@ -111,8 +132,6 @@ namespace RedisSearchProduct.Data.Products.Services
                     batch.SetCombineAndStoreAsync(SetOperation.Union, cacheKey, redisKeys);
                 }
             }
-
-            batch.KeyExpireAsync(cacheKey, KeyExpiry);
         }
     }
 }
