@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from "react";
+import baseUrl from "../../../config";
 import { ProductContext } from "../../../context/ProductContext";
 import { Filter } from "../../../types/Filter";
 import styles from "./FilterSelection.module.css";
@@ -6,8 +7,6 @@ import styles from "./FilterSelection.module.css";
 interface Props {
 	filterName: string;
 }
-
-const baseUrl = "https://localhost:7009";
 
 const FilterSelection = ({ filterName }: Props) => {
 	const { setFilter } = useContext(ProductContext);
@@ -48,7 +47,7 @@ const FilterSelection = ({ filterName }: Props) => {
 								key={value.name}
 								className={styles["filter-selection-list-item"]}
 							>
-								<span>
+								<label className="form-control">
 									<input
 										type="checkbox"
 										id={value.name}
@@ -56,10 +55,8 @@ const FilterSelection = ({ filterName }: Props) => {
 										value={""}
 										onClick={() => applyFilter(value.name)}
 									/>
-									<label htmlFor={value.name}>
-										{value.name}
-									</label>
-								</span>
+									{value.name}
+								</label>
 								<span>{value.count}</span>
 							</li>
 						);

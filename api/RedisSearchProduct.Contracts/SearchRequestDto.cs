@@ -2,6 +2,7 @@
 
 public record SearchRequestDto
 {
+    public string? Text { get; set; }
     public int PageSize { get; set; }
     public int PageNumber { get; set; }
     public SearchRequestFilterDto[]? Filters { get; set; }

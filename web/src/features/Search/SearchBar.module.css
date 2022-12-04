@@ -1,0 +1,33 @@
+.search-container {
+    margin-bottom: 1rem;
+}
+
+.search-results {
+    position: relative;
+    width: 256px;
+}
+
+.search-bar {
+    background-color: #fff;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    width: 100%;
+    color: #000;
+}
+
+.search-suggestions {
+    position: absolute;
+    left: 0;
+    right: 0;
+    background-color: #fff;
+    z-index: 999;
+}
+
+.search-suggestion {
+    padding: 0.2rem;
+    cursor: pointer;
+}
+
+.product-count {
+    font-weight: 600;
+}

@@ -1,6 +1,7 @@
 import { Product } from "./Product";
 
 export interface SearchRequest {
+	text?: string;
 	pageSize: number;
 	pageNumber: number;
 	filters: SearchRequestFilter[];

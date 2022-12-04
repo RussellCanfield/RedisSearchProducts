@@ -4,10 +4,22 @@
     flex: 1;
 }
 
-.product-pages > span {
+.product-pages {
+    padding-bottom: 1rem;
+    display: flex;
+    justify-content: center;
+}
+
+.product-pages > div {
     border-radius: 2px;
     border: 1px solid #eee;
-    padding: 0.2rem;
+    margin-right: 0.5rem;
+    width: 24px;
+    cursor: pointer;
+}
+
+.active-page {
+    background-color: #eee;
 }
 
 .product-list {

@@ -5,6 +5,7 @@ import {
 	useEffect,
 	useState,
 } from "react";
+import baseUrl from "../config";
 import { Filter } from "../types/Filter";
 import { Product } from "../types/Product";
 import {
@@ -18,7 +19,9 @@ interface IProductContext {
 	filters: string[];
 	pageNumber: number;
 	pageSize: number;
+	setPage: (page: number) => void;
 	setFilter: (filterName: string, filterValue: string) => void;
+	setSearchText: (searchTerm: string) => void;
 }
 
 const productAppContext: IProductContext = {
@@ -30,7 +33,9 @@ const productAppContext: IProductContext = {
 	filters: [],
 	pageNumber: 1,
 	pageSize: 25,
+	setPage: (_page) => {},
 	setFilter: (_filterName, _filterValue) => {},
+	setSearchText: (_searchTerm) => {},
 };
 
 export const ProductContext = createContext<IProductContext>(productAppContext);
@@ -38,8 +43,6 @@ export const ProductContext = createContext<IProductContext>(productAppContext);
 interface Props {
 	children: ReactNode;
 }
-
-const baseUrl = "https://localhost:7009";
 
 export const ProductContextProvider = ({ children }: Props) => {
 	const [searchFilters, setSearchFilters] = useState<SearchRequestFilter[]>(
@@ -51,6 +54,7 @@ export const ProductContextProvider = ({ children }: Props) => {
 		count: 0,
 		products: [],
 	});
+	const [searchTerm, setSearchTerm] = useState<string | undefined>(undefined);
 	const [pageSize, setPageSize] = useState<number>(25);
 	const [pageNumber, setPageNumber] = useState<number>(1);
 
@@ -131,6 +135,16 @@ export const ProductContextProvider = ({ children }: Props) => {
 		});
 	}, []);
 
+	const setSearchText = useCallback((searchTerm: string) => {
+		setSearchTerm(searchTerm);
+		search({
+			text: searchTerm,
+			pageSize,
+			pageNumber,
+			filters: searchFilters,
+		});
+	}, []);
+
 	useEffect(() => {
 		search({
 			pageSize,
@@ -148,7 +162,9 @@ export const ProductContextProvider = ({ children }: Props) => {
 				filters,
 				pageNumber,
 				pageSize,
+				setPage,
 				setFilter,
+				setSearchText,
 			}}
 		>
 			{children}

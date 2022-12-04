@@ -3,6 +3,8 @@ using RedisSearchProduct.Contracts;
 using RedisSearchProduct.Data.Redis;
 using StackExchange.Redis;
 using System.Text.Json;
+using RediSearchClient.Query;
+using RediSearchClient;
 
 namespace RedisSearchProduct.Data.Products.Services
 {
@@ -38,6 +40,22 @@ namespace RedisSearchProduct.Data.Products.Services
             if (searchRequest.Filters == null || searchRequest.Filters.Length == 0)
             {
                 cacheKeys.Add("default:products");
+            }
+
+            if (!string.IsNullOrWhiteSpace(searchRequest.Text))
+            {
+                var queryDefinition = RediSearchQuery
+                    .On("product:search")
+                    .UsingQuery(searchRequest.Text)
+                    .NoContent()
+                    .Build();
+
+                var result = await db.SearchAsync(queryDefinition);
+
+                for (int i = 0; i < result.RecordCount; i++)
+                {
+                    var test = result.RawResult[i];
+                }
             }
 
             if (searchRequest.Filters != null && searchRequest.Filters.Length > 0)
