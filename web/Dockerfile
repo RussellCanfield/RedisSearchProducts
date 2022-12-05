@@ -7,4 +7,5 @@ RUN npm run build
 
 FROM nginx:1.23.2-alpine
 WORKDIR /App
+COPY --from=build-env /App/nginx.conf /etc/nginx/nginx.conf
 COPY --from=build-env /App/dist /usr/share/nginx/html

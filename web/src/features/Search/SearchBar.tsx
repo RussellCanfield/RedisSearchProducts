@@ -1,4 +1,10 @@
-import { createRef, useCallback, useContext, useRef, useState } from "react";
+import {
+	createRef,
+	KeyboardEvent,
+	useCallback,
+	useContext,
+	useState,
+} from "react";
 import baseUrl from "../../config";
 import { ProductContext } from "../../context/ProductContext";
 import styles from "./SearchBar.module.css";
@@ -37,7 +43,7 @@ const SearchBar = () => {
 		setSuggestions([]);
 	};
 
-	const handleInputKeyDown = (event: KeyboardEvent) => {
+	const handleInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
 		if (!inputRef.current) return;
 
 		if (event.key === "Enter") {

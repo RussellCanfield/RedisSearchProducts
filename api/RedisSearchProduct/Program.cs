@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http.Json;
+using Microsoft.AspNetCore.HttpOverrides;
 using RedisSearchProduct.Configuration;
 using RedisSearchProduct.Data.Products.Services;
 using RedisSearchProduct.Data.Redis;
@@ -25,6 +26,11 @@ builder.Services.AddSingleton<ISeedService, SeedService>();
 builder.Services.AddSingleton<ISearchService, SearchService>();
 
 var app = builder.Build();
+
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
 
 app.UseCors();
 app.UseSwagger();
