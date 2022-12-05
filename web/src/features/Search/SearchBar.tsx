@@ -1,4 +1,4 @@
-import { useCallback, useContext, useState } from "react";
+import { createRef, useCallback, useContext, useRef, useState } from "react";
 import baseUrl from "../../config";
 import { ProductContext } from "../../context/ProductContext";
 import styles from "./SearchBar.module.css";
@@ -8,6 +8,7 @@ let timeout = 0;
 const SearchBar = () => {
 	const { searchResults, setSearchText } = useContext(ProductContext);
 	const [suggestions, setSuggestions] = useState<string[]>([]);
+	const inputRef = createRef<HTMLInputElement>();
 
 	const executeSearch = async (value: string) => {
 		const response = await fetch(
@@ -29,7 +30,19 @@ const SearchBar = () => {
 	}, []);
 
 	const selectSuggestion = (suggestion: string) => {
+		if (inputRef.current) {
+			inputRef.current.value = suggestion;
+		}
 		setSearchText(suggestion);
+		setSuggestions([]);
+	};
+
+	const handleInputKeyDown = (event: KeyboardEvent) => {
+		if (!inputRef.current) return;
+
+		if (event.key === "Enter") {
+			setSearchText(inputRef.current.value);
+		}
 	};
 
 	return (
@@ -38,14 +51,17 @@ const SearchBar = () => {
 				<input
 					type="text"
 					placeholder="Search"
+					ref={inputRef}
 					className={styles["search-bar"]}
 					onChange={(e) => searchShirts(e.target.value)}
+					onKeyDown={(e) => handleInputKeyDown(e)}
 				></input>
 				{suggestions.length > 0 && (
 					<div className={styles["search-suggestions"]}>
 						{suggestions.map((s) => {
 							return (
 								<div
+									key={s}
 									className={styles["search-suggestion"]}
 									onClick={() => selectSuggestion(s)}
 								>

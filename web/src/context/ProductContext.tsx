@@ -89,15 +89,7 @@ export const ProductContextProvider = ({ children }: Props) => {
 				}
 			}
 
-			const updatedFilters = [...filters];
-
-			search({
-				pageSize,
-				pageNumber,
-				filters: updatedFilters,
-			});
-
-			return updatedFilters;
+			return [...filters];
 		});
 	}, []);
 
@@ -128,32 +120,22 @@ export const ProductContextProvider = ({ children }: Props) => {
 
 	const setPage = useCallback((page: number) => {
 		setPageNumber(page);
-		search({
-			pageSize,
-			pageNumber: page,
-			filters: searchFilters,
-		});
 	}, []);
 
 	const setSearchText = useCallback((searchTerm: string) => {
 		setSearchTerm(searchTerm);
+	}, []);
+
+	useEffect(() => {
 		search({
 			text: searchTerm,
 			pageSize,
 			pageNumber,
 			filters: searchFilters,
 		});
-	}, []);
-
-	useEffect(() => {
-		search({
-			pageSize,
-			pageNumber,
-			filters: searchFilters,
-		});
 
 		getFilters();
-	}, []);
+	}, [searchTerm, searchFilters, pageNumber, pageSize]);
 
 	return (
 		<ProductContext.Provider

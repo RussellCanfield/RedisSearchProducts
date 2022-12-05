@@ -52,6 +52,7 @@ namespace RedisSearchProduct.Data.Products.Services
                 if (!await db.KeyExistsAsync(textKey))
                     await HandleTextSearch(db, batch, textKey, searchRequest.Text);
 
+                //Extend the expiry on this key
                 batch.KeyExpireAsync(textKey, KeyExpiry);
 
                 cacheKeys.Add(textKey);
@@ -64,6 +65,7 @@ namespace RedisSearchProduct.Data.Products.Services
                 if (!await db.KeyExistsAsync(filtersKey))
                     HandleFilters(batch, filtersKey, searchRequest.Filters);
 
+                //Extend the expiry on this key
                 batch.KeyExpireAsync(filtersKey, KeyExpiry);
 
                 cacheKeys.Add(filtersKey);
@@ -107,12 +109,12 @@ namespace RedisSearchProduct.Data.Products.Services
 
             if (result.RecordCount > 0)
             {
-                List<RedisKey> productIds = new List<RedisKey>(result.RecordCount);
+                List<RedisValue> productIds = new List<RedisValue>(result.RecordCount);
                 for (int i = 1; i <= result.RecordCount; i++)
                 {
-                    productIds.Add($"json:{result.RawResult[i].ToString()!.Split("fields:")[1]}");
+                    productIds.Add(result.RawResult[i].ToString()!.Split("fields:")[1]);
                 }
-                batch.SetCombineAndStoreAsync(SetOperation.Union, cacheKey, productIds.ToArray());
+                batch.SetAddAsync(cacheKey, productIds.ToArray());
             }
         }
 

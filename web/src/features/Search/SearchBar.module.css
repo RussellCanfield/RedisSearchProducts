@@ -1,10 +1,14 @@
 .search-container {
-    margin-bottom: 1rem;
+    margin: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .search-results {
     position: relative;
     width: 256px;
+    margin: 0 auto;
 }
 
 .search-bar {
@@ -18,9 +22,14 @@
 .search-suggestions {
     position: absolute;
     left: 0;
-    right: 0;
+    right: -18px;
     background-color: #fff;
     z-index: 999;
+    border: 1px solid #ddd;
+}
+
+.search-suggestion:hover {
+    background-color: #eee;
 }
 
 .search-suggestion {
