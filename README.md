@@ -6,4 +6,4 @@ This is not production ready code. Further considerations must be made depending
 
 # Running the project
 
-To run this project, clone the repo and run _docker-compose up_, this should load the react app, .net 7 API and redis. Visit [localhost](http://localhost).
+To run this project, clone the repo and run _docker-compose up_, this should load the react app, .net 7 API and redis. Visit [localhost:3000](http://localhost:3000/swagger) and use the POST /seed route to populate redis. Then visit [localhost](http://localhost) to use the react UI and search products!

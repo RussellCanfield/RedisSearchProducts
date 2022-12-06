@@ -11,6 +11,7 @@ import { Product } from "../types/Product";
 import {
 	SearchRequest,
 	SearchRequestFilter,
+	SearchRequestRange,
 	SearchResponse,
 } from "../types/Search";
 
@@ -21,6 +22,7 @@ interface IProductContext {
 	pageSize: number;
 	setPage: (page: number) => void;
 	setFilter: (filterName: string, filterValue: string) => void;
+	setRange: (min: string, max: string) => void;
 	setSearchText: (searchTerm: string) => void;
 }
 
@@ -35,6 +37,7 @@ const productAppContext: IProductContext = {
 	pageSize: 25,
 	setPage: (_page) => {},
 	setFilter: (_filterName, _filterValue) => {},
+	setRange: (_min, _max) => {},
 	setSearchText: (_searchTerm) => {},
 };
 
@@ -57,6 +60,9 @@ export const ProductContextProvider = ({ children }: Props) => {
 	const [searchTerm, setSearchTerm] = useState<string | undefined>(undefined);
 	const [pageSize, setPageSize] = useState<number>(25);
 	const [pageNumber, setPageNumber] = useState<number>(1);
+	const [searchRange, setSearchRange] = useState<
+		SearchRequestRange | undefined
+	>();
 
 	const setFilter = useCallback((filterName: string, filterValue: string) => {
 		setSearchFilters((filters) => {
@@ -91,6 +97,7 @@ export const ProductContextProvider = ({ children }: Props) => {
 
 			return [...filters];
 		});
+		setPageNumber(1);
 	}, []);
 
 	const search = useCallback(
@@ -124,6 +131,16 @@ export const ProductContextProvider = ({ children }: Props) => {
 
 	const setSearchText = useCallback((searchTerm: string) => {
 		setSearchTerm(searchTerm);
+		setPageNumber(1);
+	}, []);
+
+	const setRange = useCallback((min: string, max: string) => {
+		setSearchRange({
+			name: "Price",
+			min,
+			max,
+		});
+		setPageNumber(1);
 	}, []);
 
 	useEffect(() => {
@@ -132,10 +149,11 @@ export const ProductContextProvider = ({ children }: Props) => {
 			pageSize,
 			pageNumber,
 			filters: searchFilters,
+			range: searchRange,
 		});
 
 		getFilters();
-	}, [searchTerm, searchFilters, pageNumber, pageSize]);
+	}, [searchTerm, searchFilters, searchRange, pageNumber, pageSize]);
 
 	return (
 		<ProductContext.Provider
@@ -146,6 +164,7 @@ export const ProductContextProvider = ({ children }: Props) => {
 				pageSize,
 				setPage,
 				setFilter,
+				setRange,
 				setSearchText,
 			}}
 		>

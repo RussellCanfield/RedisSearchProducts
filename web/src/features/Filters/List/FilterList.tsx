@@ -1,5 +1,6 @@
 import { useContext } from "react";
 import { ProductContext } from "../../../context/ProductContext";
+import FilterRange from "../FilterSelection/FilterRange";
 import FilterSelection from "../FilterSelection/FilterSelection";
 import styles from "./FilterList.module.css";
 
@@ -16,6 +17,7 @@ const FilterList = () => {
 					></FilterSelection>
 				);
 			})}
+			<FilterRange filterName="Price"></FilterRange>
 		</section>
 	);
 };

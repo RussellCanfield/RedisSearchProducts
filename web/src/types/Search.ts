@@ -16,8 +16,8 @@ export interface SearchRequestFilter {
 
 export interface SearchRequestRange {
 	name: string;
-	min: number;
-	max: number;
+	min: string;
+	max: string;
 }
 
 export interface SearchRequestSort {

@@ -13,3 +13,15 @@
     justify-content: space-between;
     margin-bottom: 0.5rem;
 }
+
+.filter-ranges {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+}
+
+.filter-ranges > input {
+    width: 64px;
+    background-color: #fff;
+    color: #000;
+}
